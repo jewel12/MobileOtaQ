@@ -6,29 +6,36 @@ class GameController < UIViewController
   end
 
   def viewDidLoad
-    @quizzes = Quiz.new
-    @quizzes.load
+    @quiz_loader = QuizLoader.new
+    @quiz_loader.load
 
     margin = 20
 
     @state = UILabel.new
     @state.font = UIFont.systemFontOfSize(40)
-    @state.text = 'OtaQ'
+    @state.text = 'Now loading...'
     @state.textAlignment = UITextAlignmentCenter
-    @state.textColor = UIColor.yellowColor
+    @state.textColor = UIColor.blueColor
     @state.backgroundColor = UIColor.clearColor
     @state.frame = [[margin, 200], [view.frame.size.width - margin * 2, 40]]
     view.addSubview(@state)
 
-    @timer = NSTimer.scheduledTimerWithTimeInterval(0.1, target:self, selector:'timerFired', userInfo:nil, repeats:true)
-
+    @timer = NSTimer.scheduledTimerWithTimeInterval(0.01, target:self, selector:'timerFired', userInfo:nil, repeats:true)
   end
 
   def timerFired
-    @state.text = if @quizzes.loaded?
-                    "YES"
-                  else
-                    "Now loading..."
-                  end
+    if @quiz_loader.loaded?
+      @timer.invalidate
+      quiz_controller = QuizController.new
+      quiz_controller.quizzes = @quiz_loader
+      self.navigationController.pushViewController(quiz_controller, animated:true)
+    end
   end
 end
+
+
+
+
+
+
+

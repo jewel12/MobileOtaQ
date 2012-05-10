@@ -1,12 +1,14 @@
-class Quiz
-  include Enumerable
+class QuizLoader
+  attr_reader :quizzes
 
   def initialize
+    @pointer = -1
     @quizzes = []
   end
 
-  def each
-    @quizzes.each{|quiz| yield quiz}
+  def next
+    raise StopIteration if (@pointer += 1) == @quizzes.length
+    return @quizzes[ @pointer ]
   end
 
   def loaded?
@@ -14,7 +16,7 @@ class Quiz
   end
 
   def load
-    BubbleWrap::HTTP.get("http://otaq.jewelve.com/quizzes.json") do |response|
+    BubbleWrap::HTTP.get('http://otaq.jewelve.com/quizzes.json') do |response|
       @quizzes = BubbleWrap::JSON.parse( response.body.to_str )
     end
   end

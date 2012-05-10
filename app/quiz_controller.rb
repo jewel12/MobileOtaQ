@@ -1,11 +1,13 @@
-class TitleController < UIViewController
+class QuizController < UIViewController
+  attr_accessor :quizzes
+
   def viewDidLoad
     margin = 20
     @state = UILabel.new
     @state.font = UIFont.systemFontOfSize(40)
-    @state.text = 'OtaQ'
+    @state.text = @quizzes.next['show_name']
     @state.textAlignment = UITextAlignmentCenter
-    @state.textColor = UIColor.whiteColor
+    @state.textColor = UIColor.blueColor
     @state.backgroundColor = UIColor.clearColor
     @state.frame = [[margin, 200], [view.frame.size.width - margin * 2, 40]]
     view.addSubview(@state)
@@ -20,6 +22,14 @@ class TitleController < UIViewController
   end
 
   def actionTapped
-    self.navigationController.pushViewController(GameController.new,animated:true)
+    @state.text = @quizzes.next['show_name']
+    rescue StopIteration
   end
 end
+
+
+
+
+
+
+
