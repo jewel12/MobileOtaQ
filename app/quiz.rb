@@ -16,7 +16,8 @@ class QuizLoader
   end
 
   def load
-    BubbleWrap::HTTP.get('http://otaq.jewelve.com/quizzes.json') do |response|
+    url = "http://otaq.jewelve.com/quizzes.json"
+    BubbleWrap::HTTP.get( url ) do |response|
       @quizzes = BubbleWrap::JSON.parse( response.body.to_str )
     end
   end
