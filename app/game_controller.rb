@@ -26,9 +26,16 @@ class GameController < UIViewController
   def timerFired
     if @quiz_loader.loaded?
       @timer.invalidate
-      quiz_controller = QuizController.new
-      quiz_controller.quizzes = @quiz_loader
-      self.navigationController.pushViewController(quiz_controller, animated:true)
+
+      if @quiz_loader.quizzes.empty?
+        # Return Title
+        self.navigationController.popToRootViewControllerAnimated( true )
+      else
+        # Show quiz
+        quiz_controller = QuizController.new
+        quiz_controller.quizzes = @quiz_loader
+        self.navigationController.pushViewController(quiz_controller, animated:true)
+      end
     end
   end
 end
