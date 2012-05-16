@@ -2,7 +2,8 @@ class AppDelegate
   def application(application, didFinishLaunchingWithOptions:launchOptions)
     @window = UIWindow.alloc.initWithFrame(UIScreen.mainScreen.bounds)
 
-    nav = UINavigationController.alloc.initWithRootViewController(TitleController.new )
+    @title_controller = TitleController.new
+    nav = UINavigationController.alloc.initWithRootViewController( @title_controller )
     nav.navigationBarHidden = true
 
     @window.rootViewController = nav

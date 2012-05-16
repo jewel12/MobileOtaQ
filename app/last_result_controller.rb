@@ -1,26 +1,28 @@
-class TitleController < UIViewController
+# -*- coding: utf-8 -*-
+class LastResultController < UIViewController
+  attr_accessor :quizzes
+
   def viewDidLoad
-    margin = 20
     @state = UILabel.new
     @state.font = UIFont.systemFontOfSize(40)
-    @state.text = 'OtaQ'
     @state.textAlignment = UITextAlignmentCenter
-    @state.textColor = UIColor.whiteColor
+    @state.textColor = UIColor.blueColor
+    @state.text = "YATTANE!!!"
     @state.backgroundColor = UIColor.clearColor
-    @state.frame = [[margin, 200], [view.frame.size.width - margin * 2, 40]]
+    @state.frame = [[20, 200], [view.frame.size.width - 20 * 2, 40]]
     view.addSubview(@state)
 
     @action = UIButton.buttonWithType(UIButtonTypeRoundedRect)
-    @action.setTitle('Start', forState:UIControlStateNormal)
+    @action.setTitle('Go to title', forState:UIControlStateNormal)
     @action.addTarget(self,
                       action:'actionTapped',
                       forControlEvents:UIControlEventTouchUpInside)
+    margin = 20
     @action.frame = [[margin, 260], [view.frame.size.width - margin * 2, 40]]
     view.addSubview(@action)
   end
 
   def actionTapped
-    @game_controller = GameController.new
-    self.navigationController.pushViewController(@game_controller,animated:true)
+    self.navigationController.popToRootViewControllerAnimated( true )
   end
 end
