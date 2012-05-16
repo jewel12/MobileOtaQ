@@ -32,9 +32,9 @@ class GameController < UIViewController
         self.navigationController.popToRootViewControllerAnimated( true )
       else
         # Show quiz
-        quiz_controller = QuizController.new
-        quiz_controller.quizzes = @quiz_loader
-        self.navigationController.pushViewController(quiz_controller, animated:true)
+        @quiz_controller = QuizController.new
+        @quiz_controller.quizzes = @quiz_loader
+        self.navigationController.pushViewController(@quiz_controller, animated:true)
       end
     end
   end

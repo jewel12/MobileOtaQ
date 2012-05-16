@@ -4,51 +4,116 @@ class QuizController < UIViewController
 
   def init
     super
-    @choice_num = 4
+    @choice_num = 4 # Number of chocies
+    @total_time = 15 # Number of chocies
+    @sentence_num = -1
     return self
   end
 
+  def generate_label( opt )
+    label = UILabel.new
+    label.textAlignment = UITextAlignmentCenter
+    label.font = UIFont.systemFontOfSize( opt[:font_size] )
+    label.textColor = opt[:text_color]
+    label.backgroundColor = opt[:bg_color]
+    frame = opt[:frame]
+    label.frame = CGRectMake( frame[:x], frame[:y],
+                              frame[:width], frame[:height] )
+    return label
+  end
+
   def init_view
-    @state = UILabel.new
-    @state.font = UIFont.systemFontOfSize(40)
-    @state.textAlignment = UITextAlignmentCenter
-    @state.textColor = UIColor.blueColor
-    @state.backgroundColor = UIColor.clearColor
-    @state.frame = [[20, 200], [view.frame.size.width - 20 * 2, 40]]
-    view.addSubview(@state)
+    button_height = 40 # choice button
+    choice_area_start_y = view.frame.size.height - button_height*@choice_num
+    state_height = 40
+    sentence_area_start_y = state_height
+    sentence_area_height = choice_area_start_y - state_height
 
-    @res = UILabel.new
-    @res.font = UIFont.systemFontOfSize(40)
-    @res.textAlignment = UITextAlignmentCenter
-    @res.textColor = UIColor.blueColor
-    @res.backgroundColor = UIColor.clearColor
-    @res.frame = [[20, 100], [view.frame.size.width - 20 * 2, 40]]
+    @res = generate_label(
+                          font_size: 40,
+                          text_color: UIColor.redColor,
+                          bg_color: UIColor.clearColor,
+                          frame: {
+                            x: 20,
+                            y: 100,
+                            width: view.frame.size.width - 20 * 2,
+                            height: 40
+                          })
+
+    @state = generate_label(
+                            font_size: 10,
+                            text_color: UIColor.blackColor,
+                            bg_color: UIColor.whiteColor,
+                            frame: {
+                              x: 0,
+                              y: 0,
+                              width: view.frame.size.width,
+                              height: state_height
+                            })
+
+    @sentence_area = generate_label(
+                                    font_size: 40,
+                                    text_color: UIColor.whiteColor,
+                                    bg_color: UIColor.clearColor,
+                                    frame: {
+                                      x: 0,
+                                      y: sentence_area_start_y,
+                                      width: view.frame.size.width,
+                                      height: sentence_area_height
+                                    })
+
     view.addSubview(@res)
+    view.addSubview(@state)
+    view.addSubview(@sentence_area)
 
-    @choice_buttons = []
+  end
+
+  def show_quiz( quiz )
+    @sentence_num = -1
+    show_name = quiz['show_name']
+
+    choice_buttons = []
     button_height = 40
     choice_area_start_y = view.frame.size.height - button_height*@choice_num
     @choice_num.times do |i|
       button = UIButton.buttonWithType(UIButtonTypeRoundedRect)
       button.frame = CGRectMake( 0, choice_area_start_y+button_height*i,
                                  view.frame.size.width, button_height )
-      @choice_buttons << button
+      choice_buttons << button
     end
 
-    @choice_buttons.each{|b| view.addSubview(b)}
-  end
+    choice_buttons.each{|b| view.addSubview(b)}
 
-  def show_quiz( quiz )
-    show_name = quiz['show_name']
-
-    @state.text = show_name
-
-    @choice_buttons.zip( quiz['choices'] ).each do |button,choice|
+    choice_buttons.zip( quiz['choices'].shuffle ).each do |button,choice|
       button.setTitle( choice, forState:UIControlStateNormal)
       button.addTarget(self,
-                        action: show_name == choice ? 'show_correct' : 'show_wrong',
-                        forControlEvents:UIControlEventTouchUpInside)
+                       action: show_name == choice ? 'show_correct' : 'show_wrong',
+                       forControlEvents:UIControlEventTouchUpInside)
     end
+
+    @timer = NSTimer.scheduledTimerWithTimeInterval(
+                                                    @total_time/@quizzes.current[:sentences].size,
+                                                    target:self, selector:'show_next_hint',
+                                                    userInfo:nil, repeats:true
+                                                    )
+    show_next_hint
+  end
+
+  def show_next_hint
+    sentences = @quizzes.current[:sentences]
+
+    if sentences.size == (@sentence_num+=1)
+      show_wrong
+      return
+    end
+
+    @sentence_area.text = sentences[@sentence_num]
+  end
+
+  def show_last_result
+    @last_result_controller = LastResultController.new
+    @last_result_controller.quizzes = @quiz_loader
+    self.navigationController.pushViewController(@last_result_controller, animated:true)
   end
 
   def viewDidLoad
@@ -65,15 +130,14 @@ class QuizController < UIViewController
   end
 
   def show_result( result )
+    if @timer
+      @timer.invalidate
+      @timer = nil
+    end
+
     @res.text = result
     show_quiz( @quizzes.next )
-    rescue StopIteration
+  rescue StopIteration # End of the quiz
+    show_last_result
   end
 end
-
-
-
-
-
-
-

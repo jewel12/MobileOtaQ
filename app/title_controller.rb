@@ -20,6 +20,7 @@ class TitleController < UIViewController
   end
 
   def actionTapped
-    self.navigationController.pushViewController(GameController.new,animated:true)
+    @game_controller = GameController.new
+    self.navigationController.pushViewController(@game_controller,animated:true)
   end
 end

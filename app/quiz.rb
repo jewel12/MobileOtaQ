@@ -1,9 +1,10 @@
 class QuizLoader
-  attr_reader :quizzes
+  attr_reader :quizzes, :pointer
 
   def initialize
     @pointer = -1
     @quizzes = []
+    @url = "http://otaq.jewelve.com/quizzes.json"
   end
 
   def next
@@ -21,8 +22,7 @@ class QuizLoader
 
   def load
     @loaded_flg = false
-    url = "http://otaq.jewelve.com/quizzes.json"
-    BubbleWrap::HTTP.get( url ) do |response|
+    BubbleWrap::HTTP.get( @url ) do |response|
       begin
         @quizzes = BubbleWrap::JSON.parse( response.body.to_str )
       rescue => e
