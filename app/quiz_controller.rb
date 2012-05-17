@@ -14,7 +14,6 @@ class QuizController < UIViewController
 
   def generate_label( opt )
     label = UILabel.new
-<<<<<<< HEAD
     label.font = UIFont.systemFontOfSize( opt[:font_size] )
     label.textColor = opt[:text_color]
     label.backgroundColor = opt[:bg_color]
@@ -22,16 +21,11 @@ class QuizController < UIViewController
     label.textAlignment = opt[:alignment] || UITextAlignmentCenter
     label.adjustsFontSizeToFitWidth = true
     label.minimumFontSize = 10
-<<<<<<< HEAD
-=======
     label.textAlignment = UITextAlignmentCenter
     label.font = UIFont.systemFontOfSize( opt[:font_size] )
     label.textColor = opt[:text_color]
     label.backgroundColor = opt[:bg_color]
->>>>>>> ShowAllHints
-=======
     label.lineBreakMode = UILineBreakModeWordWrap
->>>>>>> MakeResultTime
     frame = opt[:frame]
     label.frame = CGRectMake( frame[:x], frame[:y],
                               frame[:width], frame[:height] )
@@ -79,17 +73,14 @@ class QuizController < UIViewController
                             })
 
     @sentence_area = generate_label(
-<<<<<<< HEAD
                                     font_size: 30,
                                     text_color: UIColor.whiteColor,
                                     bg_color: UIColor.clearColor,
                                     line_num: 0,
                                     alignment: UITextAlignmentLeft,
-=======
                                     font_size: 40,
                                     text_color: UIColor.whiteColor,
                                     bg_color: UIColor.clearColor,
->>>>>>> ShowAllHints
                                     frame: {
                                       x: 0,
                                       y: sentence_area_start_y,
@@ -107,7 +98,7 @@ class QuizController < UIViewController
     clear_main_area
 
     begin
-      quiz = @quizzes.next 
+      quiz = @quizzes.next
     rescue StopIteration # End of the quiz
       show_last_result
       return
