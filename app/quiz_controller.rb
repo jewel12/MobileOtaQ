@@ -5,7 +5,9 @@ class QuizController < UIViewController
   def init
     super
     @choice_num = 4 # Number of chocies
+    @interval_time = 1.5 # Between quizzes
     @total_time = 15 # Number of chocies
+    @total_point = 0
     @sentence_num = -1
     return self
   end
@@ -19,6 +21,7 @@ class QuizController < UIViewController
     label.textAlignment = opt[:alignment] || UITextAlignmentCenter
     label.adjustsFontSizeToFitWidth = true
     label.minimumFontSize = 10
+    label.lineBreakMode = UILineBreakModeWordWrap
     frame = opt[:frame]
     label.frame = CGRectMake( frame[:x], frame[:y],
                               frame[:width], frame[:height] )
@@ -37,9 +40,20 @@ class QuizController < UIViewController
                           text_color: UIColor.redColor,
                           bg_color: UIColor.clearColor,
                           frame: {
-                            x: 20,
+                            x: 0,
                             y: 100,
-                            width: view.frame.size.width - 20 * 2,
+                            width: view.frame.size.width,
+                            height: 40
+                          })
+
+    @correct_choice_label = generate_label(
+                          font_size: 40,
+                          text_color: UIColor.yellowColor,
+                          bg_color: UIColor.clearColor,
+                          frame: {
+                            x: 0,
+                            y: 150,
+                            width: view.frame.size.width,
                             height: 40
                           })
 
@@ -68,12 +82,21 @@ class QuizController < UIViewController
                                     })
 
     view.addSubview(@res)
+    view.addSubview(@correct_choice_label)
     view.addSubview(@state)
     view.addSubview(@sentence_area)
-
   end
 
-  def show_quiz( quiz )
+  def show_quiz
+    clear_main_area
+
+    begin
+      quiz = @quizzes.next 
+    rescue StopIteration # End of the quiz
+      show_last_result
+      return
+    end
+
     @sentence_num = -1
     show_name = quiz['show_name']
 
@@ -106,27 +129,33 @@ class QuizController < UIViewController
 
   def show_next_hint
     sentences = @quizzes.current[:sentences]
+    @sentence_num += 1
 
-    if sentences.size == (@sentence_num+=1)
+    if sentences.size == @sentence_num
+      @sentence_area.text = sentences.last
+    elsif sentences.size < @sentence_num
       show_wrong
       return
+    else
+      @sentence_area.text = sentences[@sentence_num]
     end
-
-    @sentence_area.text = sentences[@sentence_num]
   end
 
   def show_last_result
+    clear_main_area
     @last_result_controller = LastResultController.new
     @last_result_controller.quizzes = @quiz_loader
+    @last_result_controller.total_point = @total_point
     self.navigationController.pushViewController(@last_result_controller, animated:true)
   end
 
   def viewDidLoad
     init_view
-    show_quiz( @quizzes.next )
+    show_quiz
   end
 
   def show_correct
+    @total_point += 1
     show_result( '正解!' )
   end
 
@@ -134,15 +163,25 @@ class QuizController < UIViewController
     show_result( '不正解!' )
   end
 
-  def show_result( result )
-    if @timer
-      @timer.invalidate
-      @timer = nil
-    end
+  def clear_main_area
+    @res.text =''
+    @correct_choice_label.text =''
+  end
 
-    @res.text = result
-    show_quiz( @quizzes.next )
-  rescue StopIteration # End of the quiz
-    show_last_result
+  def show_result( result )
+      if @timer
+        @timer.invalidate
+        @timer = nil
+      end
+
+      @sentence_area.text = ''
+      @res.text = result
+      @correct_choice_label.text = @quizzes.current['show_name']
+
+      NSTimer.scheduledTimerWithTimeInterval(
+                                             @interval_time,
+                                             target:self, selector:'show_quiz',
+                                             userInfo:nil, repeats:false
+                                             )
   end
 end
