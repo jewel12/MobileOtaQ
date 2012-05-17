@@ -1,5 +1,5 @@
 class QuizLoader
-  attr_reader :quizzes
+  attr_reader :quizzes, :pointer
 
   def initialize
     @pointer = -1

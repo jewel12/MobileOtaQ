@@ -62,7 +62,7 @@ class QuizController < UIViewController
                           })
 
     @state = generate_label(
-                            font_size: 10,
+                            font_size: 20,
                             text_color: UIColor.blackColor,
                             bg_color: UIColor.whiteColor,
                             frame: {
@@ -103,6 +103,9 @@ class QuizController < UIViewController
       show_last_result
       return
     end
+
+    remain_quizzes_num = (@quizzes.quizzes.size - @quizzes.pointer-1)
+    @state.text = "残り #{remain_quizzes_num} 問"
 
     @sentence_num = -1
     show_name = quiz['show_name']
